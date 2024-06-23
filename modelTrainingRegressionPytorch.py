@@ -35,19 +35,21 @@ path_3 = os.path.join(os.getcwd(), folder_name_3)
 os.makedirs(path_1)
 os.makedirs(path_2)
 os.makedirs(path_3)
-# Example condition
 
+# Check for CUDA availability and set device
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Using device: {device}")
+if device == "cpu":
+    if input('cpu is used as the device, do you wish to continue? y/n') == 'n':
+        should_stop = True
 
 # Check the condition
 if should_stop:
     print("Stopping the script because the condition is True.")
     sys.exit()
-# Check for CUDA availability and set device
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Using device: {device}")
+
 # Set random seed for reproducibility
 # torch.manual_seed(42)
-
 
 def delete_files_in_folder(folder_path):
     # Check if the folder exists
@@ -81,6 +83,7 @@ def compute_validation_loss(y_true, y_pred):
     y_true = y_true.cpu().numpy()  # Move to CPU and then convert to NumPy array
     y_pred = y_pred.cpu().numpy()
 
+    # what is this??
     y_true = scalerYData.inverse_transform(y_true)
     y_pred = scalerYData.inverse_transform(y_pred)
     # Calculate element-wise squared differences
@@ -117,6 +120,7 @@ def inverse_log_scale_dataframe(log_scaled_array):
     """
     original_data = np.exp(log_scaled_array)
     return original_data
+
 class CustomLossFunction(nn.Module):
     def __init__(self):
         super(CustomLossFunction, self).__init__()
@@ -127,8 +131,6 @@ class CustomLossFunction(nn.Module):
         mse = self.mse(y_true, y_pred)
         # Calculate RMSE
         rmse = torch.sqrt(mse + 1e-8)
-
-
 
         loss = rmse / (y_true + 1e-20)
         # Calculate custom loss
@@ -151,7 +153,6 @@ class NeuralNetwork(nn.Module):
         # nn.ReLU(),
         # nn.Dropout(p=dropout_rate),
         nn.Linear(hidden_size, output_size))
-
 
     def forward(self, x):
         return self.layers(x)

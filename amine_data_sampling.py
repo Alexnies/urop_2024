@@ -47,11 +47,10 @@ composition = ["ABSORBENT", "CO2", "N2"]
 upperBounds = [temperatureUpperBound, pressureUpperBound, compositionUpperBounds]
 lowerBounds = [temperatureLowerBound, pressureLowerBound, compositionLowerBounds]
 
-# this is for ...
 groupsGC = np.array([1,     0,     0,    0,  0,  0, 0, 0,   0,          1,  0, 0, 1])
 
 # order: [T,P,amine,co2,n2]
-numberOfPoints = pow(2, 14)
+numberOfPoints = pow(2, 10)
 sobol_points = generate_sobol_points(lowerBounds,upperBounds,numberOfPoints)
 print(upperBounds)
 print(lowerBounds)
@@ -93,7 +92,7 @@ for compositionType in compositionTypes:
 
 header = ['Temperature', 'Pressure'] + strCompositions + ['LiquidPhaseFraction', 'VapourPhaseFraction']
 print(header)
-with open('output_7.csv', 'w', newline='') as file:
+with open('small_sample.csv', 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(header)
     writer.writerows(results)

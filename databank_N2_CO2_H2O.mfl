@@ -1,0 +1,33 @@
+#Multiflash version: 6.1.47   October 2017         #
+#Date: Tue 28 July 2020        Time:   09:34:04  #
+#  Exported from Multiflash in legacy mode #
+remove all;
+units temperature K pressure Pa enthalpy J/mol entropy J/mol/K volume m3/mol 
+amounts mol viscosity Pas thcond W/m/K surten N/m diffusion m2/s;
+datum enthalpy compound entropy compound; 
+set fractions; chardata INFOCHAR TBSOEREIDE; 
+puredata Infodata; 
+Components overwrite
+1 N2 
+2 CO2 
+3 H2O ; 
+bipdata INFOBIPS OILANDGAS4; 
+BipSet PR78ABIP 1 constant eos none; 
+BipSet LGSTBIP 1 constant eos none; 
+model MPR78A PRA PSAT78 LDEN VDW PR78ABIP; 
+model VSuperTRAPP SPVISC LFIT; 
+model TCSuperTRAPP SPTHCOND SPTHCOND; 
+model STLGST LGST MPR78A LGSTBIP; 
+PD GAS gas MPR78A MPR78A MPR78A VSuperTRAPP TCSuperTRAPP STLGST; 
+PD LIQUID1 liquid MPR78A MPR78A MPR78A VSuperTRAPP TCSuperTRAPP STLGST; 
+keys LIQUID1 *; 
+PD LIQUID2 liquid MPR78A MPR78A MPR78A VSuperTRAPP TCSuperTRAPP STLGST; 
+keys LIQUID2 *; 
+PD WATER liquid MPR78A MPR78A MPR78A VSuperTRAPP TCSuperTRAPP STLGST; 
+keys WATER AQUEOUS; 
+Temperature 293.15; 
+Pressure 101325; 
+units temperature K pressure Pa enthalpy J/mol entropy J/mol/K volume 
+m3/mol amounts mole viscosity Pas thcond W/m/K surten N/m diffusion m2/s; 
+
+set physprops 2VCS;

@@ -1,0 +1,30 @@
+# WARNING: This file is intended for internal use only.
+# Modifying it may lead to unpredictable behaviour.
+!VERSION
+1.0
+!PROCESS
+{gpr
+F:SAFT = "gSAFT::CCS_Mie_Databank_221020.xml<water,ABSORBENT(NH2_2nd;NH_2nd;N_2nd;CH3;CH2;CH;C;CH2OH;CH2OH_Short;NH2;NH;N;OH;OH_Short),carbon_dioxide,nitrogen>"
+I:nComponents = 4
+O:components = ["water", "ABSORBENT", "carbon_dioxide", "nitrogen"]
+R:x_pure("components"=["water", "ABSORBENT", "carbon_dioxide", "nitrogen"], "components"=["water", "ABSORBENT", "carbon_dioxide", "nitrogen"]) = [ 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8 ]
+R:y_pure("components"=["water", "ABSORBENT", "carbon_dioxide", "nitrogen"], "components"=["water", "ABSORBENT", "carbon_dioxide", "nitrogen"]) = [ 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8 ]
+O:flashdetails = ["Temperature", "Pressure", "Vapour Mole Fraction [water]", "Vapour Mole Fraction [ABSORBENT]", "Vapour Mole Fraction [carbon_dioxide]", "Vapour Mole Fraction [nitrogen]", "Vapour Enthalpy", "Vapour Molar Amount", "Vapour Volume", "1st Liquid Mole Fraction [water]", "1st Liquid Mole Fraction [ABSORBENT]", "1st Liquid Mole Fraction [carbon_dioxide]", "1st Liquid Mole Fraction [nitrogen]", "1st Liquid Enthalpy", "1st Liquid Molar Amount", "1st Liquid Volume", "2nd Liquid Mole Fraction [water]", "2nd Liquid Mole Fraction [ABSORBENT]", "2nd Liquid Mole Fraction [carbon_dioxide]", "2nd Liquid Mole Fraction [nitrogen]", "2nd Liquid Enthalpy", "2nd Liquid Molar Amount", "2nd Liquid Volume"]
+{molecule
+F:SAFT = "gSAFT::CCS_Mie_Databank_221020.xml<water,ABSORBENT(NH2_2nd;NH_2nd;N_2nd;CH3;CH2;CH;C;CH2OH;CH2OH_Short;NH2;NH;N;OH;OH_Short),carbon_dioxide,nitrogen>"
+O:No_components = ["water", "ABSORBENT", "carbon_dioxide", "nitrogen"]
+I:nGroupMieType = 14
+I:nGroupGCType = 13
+}
+}
+!CONSTANTS
+{#pythonmodelsimple
+R:SAFTPressFactor = 1.0E-6
+I:noComponents = 4
+R:pi = 3.14159265
+R:g = 9.81
+R:SurTensFactor = 0.001
+R:VolFactor = 1.0E-6
+I:nGroupMieType = 14
+I:nGroupGCType = 13
+}

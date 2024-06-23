@@ -1,5 +1,6 @@
 import pandas as pd
 pd.set_option("display.max_rows", 5)
+pd.set_option("display.max_columns", None)
 import numpy as np
 from sklearn.datasets import make_classification
 from sklearn.model_selection import train_test_split
@@ -24,7 +25,7 @@ def drop_random_non_pure_points(df, num_to_drop):
     drop_indices = np.random.choice(df.index, num_to_drop, replace=False)
     return df.drop(drop_indices)
 
-phaseEquilibriumData = pd.read_csv("./output_6.csv")
+phaseEquilibriumData = pd.read_csv("./small_sample.csv")
 print(phaseEquilibriumData)
 
 #featureNames = ['Temperature', 'Pressure', 'z_EC', 'z_DMC', 'z_Tot']
@@ -52,7 +53,11 @@ phaseEquilibriumData['isPureVapour'] = phaseEquilibriumData.apply(lambda row:
 
 phaseEquilibriumData['inverseTemperature'] = 1/phaseEquilibriumData['Temperature']
 
+# why not turn into mass ratios instead?
 phaseEquilibriumData[mWNames] = phaseEquilibriumData[moleFractionNames]*mW
+
+print('Printing dfs now')
+print(phaseEquilibriumData.describe())
 
 print(phaseEquilibriumData[mWNames][:5])
 print(phaseEquilibriumData[moleFractionNames][:5])
