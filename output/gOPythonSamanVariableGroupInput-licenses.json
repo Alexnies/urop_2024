@@ -1,0 +1,18 @@
+{
+    "version": 1,
+    "signature": "DE5DF4F992F8554D003F5EB9AA46A11A090F058458A40C9953F7D3F48054A89D",
+    "licenses": [
+        {
+            "feature": "0810_GPROPERTIES_PPE_SAFT",
+            "count": 1
+        },
+        {
+            "feature": "9100_GPROMS_ENCRYPTED",
+            "count": 1
+        },
+        {
+            "feature": "9100_SIM",
+            "count": 1
+        }
+    ]
+}
