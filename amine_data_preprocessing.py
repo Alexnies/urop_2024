@@ -16,7 +16,6 @@ import timeit
 import time
 import io
 from contextlib import redirect_stdout, redirect_stderr
-import gopython
 
 # function to randomly drop a specified number of non-pure points
 def drop_random_non_pure_points(df, num_to_drop):

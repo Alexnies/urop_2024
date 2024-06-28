@@ -36,34 +36,32 @@ def generate_sobol_points(lower_bounds, upper_bounds, num_points):
     return scaled_points
 
 # process specification ranges
-pressureUpperBound = 2.5*101325
-pressureLowerBound = 101325
-temperatureUpperBound = 450
-temperatureLowerBound = 298
-compositionUpperBounds = [0.085, 0.085, 0.4]
-compositionLowerBounds = [0.025, 0.015, 0.2]
-composition = ["ABSORBENT", "CO2", "N2"]
+pressure_upper = 2.5*101325
+pressure_lower = 101325
+temp_upper = 450
+temp_lower = 298
+composition_upper = [0.085, 0.085, 0.4]
+composition_lower = [0.025, 0.015, 0.2]
 
-upperBounds = [temperatureUpperBound, pressureUpperBound, compositionUpperBounds]
-lowerBounds = [temperatureLowerBound, pressureLowerBound, compositionLowerBounds]
+upper_bounds = [temp_upper, pressure_upper, composition_upper]
+lower_bounds = [temp_lower, pressure_lower, composition_lower]
 
 groupsGC = np.array([1,     0,     0,    0,  0,  0, 0, 0,   0,          1,  0, 0, 1])
 
 # order: [T,P,amine,co2,n2]
-numberOfPoints = pow(2, 10)
-sobol_points = generate_sobol_points(lowerBounds,upperBounds,numberOfPoints)
-print(upperBounds)
-print(lowerBounds)
-print(numberOfPoints)
+total_points = pow(2, 10)
+sobol_points = generate_sobol_points(lower_bounds,upper_bounds,total_points)
+print(upper_bounds)
+print(lower_bounds)
+print(total_points)
 print(sobol_points.shape[0])
 print(sobol_points[0,])
 
-# call gproms to ...?
+# calling gPROMs
 gopython.start_only()
 gopython.select("gOPythonSamanVariableGroupInput", "gOPythonSamanVariableGroupInput")
 gopython.simulate("gOPythonSamanVariableGroupInput")
 
-# this is doing ...?
 null = io.StringIO()
 i = 1
 results = []
@@ -83,14 +81,14 @@ for lineInput in sobol_points:
         print(f'Iteration {i}: This is every {x}th iteration.')
 gopython.stop()
 
-strCompositions = []
-compositionTypes = ['z', 'x', 'y']
-compositionPrint = ["water", "ABSORBENT", "CO2", "N2"]
-for compositionType in compositionTypes:
-    for species in compositionPrint:
-        strCompositions.append(compositionType + '_' + species)
+compositions = []
+composition_types = ['z', 'x', 'y']
+species = ["water", "absorbent", "co2", "n2"]
+for composition_type in composition_types:
+    for specie in species:
+        compositions.append(composition_type + '_' + specie)
 
-header = ['Temperature', 'Pressure'] + strCompositions + ['LiquidPhaseFraction', 'VapourPhaseFraction']
+header = ['temp', 'pressure'] + compositions + ['liquid_fraction', 'vapour_fraction']
 print(header)
 with open('small_sample.csv', 'w', newline='') as file:
     writer = csv.writer(file)
