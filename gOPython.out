@@ -18,13 +18,25 @@ Access https://support.sw.siemens.com/en-US/support-case for product support.
 
 Connecting to license server.
 Requesting license for 9100_GPROMS_ENCRYPTED from server ...
-FLEXlm - checkout failed: Cannot connect to license server system.
-     The license server manager (lmgrd) has not been started yet,
-     the wrong port@host or license file is being used, or the
-     port or hostname in the license file has been changed.
-    Feature:       9100_GPROMS_ENCRYPTED
-    Server name:   localhost
-    License path:  @localhost:/usr/local/pse/gPROCESS_2023/gPROMS-core_2022.2.2.55277/licenses/*.lic:license.dat:*.lic:
-    FLEXlm Licensing error:-15,570.  System Error: 115 "Operation now in progress"
-License request failed (LICENSE_ERROR)
+License granted by server gproms.cc.ic.ac.uk.
+
+The following processes are available:
+
+  gOPythonSamanVariableGroupInput
+
+Requesting license for 9100_SIM from server ...
+License granted by server gproms.cc.ic.ac.uk.
+An error occurred during Simulation
+Execution of gOPythonSamanVariableGroupInput fails prematurely.
+
+Simulation took 0.189858 seconds.
+Total CPU time: 0.035s (16% system time)
+
+Performing Foreign Object termination: "gSAFT::CCS_Mie_Databank_221020.xml<water,ABSORBENT(NH2_2nd;NH_2nd;N_2nd;CH3;CH2;CH;C;CH2OH;CH2OH_Short;NH2;NH;N;OH;OH_Short),carbon_dioxide,nitrogen>"
+  Returning license for 0831_SF_ENGINE to server ...
+  License returned to server.
+Returning license for 9100_SIM to server ...
+License returned to server.
+Returning license for 9100_GPROMS_ENCRYPTED to server ...
+License returned to server.
 Disconnected from license server.

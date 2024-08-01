@@ -8,7 +8,6 @@ from torch.utils.data import DataLoader, TensorDataset
 import time
 from sklearn.model_selection import train_test_split
 import joblib
-import GPUtil
 import optuna
 import os
 import shutil
@@ -83,7 +82,6 @@ def compute_validation_loss(y_true, y_pred):
     y_true = y_true.cpu().numpy()  # Move to CPU and then convert to NumPy array
     y_pred = y_pred.cpu().numpy()
 
-    # what is this??
     y_true = scalerYData.inverse_transform(y_true)
     y_pred = scalerYData.inverse_transform(y_pred)
     # Calculate element-wise squared differences
@@ -365,7 +363,7 @@ start_time = time.time()  # Capture the end time after the operation completes
 
 
 study = optuna.create_study(direction='minimize')
-study.optimize(objective, n_trials=500, callbacks=[save_best_trial])
+study.optimize(objective, n_trials=100, callbacks=[save_best_trial])
 
 
 end_time = time.time()  # Capture the end time after the operation completes
