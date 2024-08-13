@@ -218,9 +218,9 @@ def define_model():
                             hidden_size_l1=500,
                             hidden_size_l2=500,
                             dropout_rate=0)
-    #old_state_dict = torch.load(MODEL_SAVE_PATH)
-    #new_state_dict = rename_state_dict_keys(old_state_dict)
-    #model.load_state_dict(new_state_dict)
+    old_state_dict = torch.load(MODEL_SAVE_PATH)
+    new_state_dict = rename_state_dict_keys(old_state_dict)
+    model.load_state_dict(new_state_dict)
 
     return model
 

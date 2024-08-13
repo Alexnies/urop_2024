@@ -39,7 +39,7 @@ def main():
     # define variables to pass into SAFT via gPROMS
     temp = 313
     pressure = 1.01e5
-    n_CO2_vector = np.linspace(0.5 * 0.0026446956, 2 * 0.0026446956, int(1e3))
+    n_CO2_vector = np.linspace(0.2 * 0.0026446956, 10 * 0.0026446956, int(1e3))
     n = np.array([0.028604876, 0.0032229, 0.0026446956, 0.01838627])
 
     result_x = pd.DataFrame(columns=["x_absorbent", "x_co2", "x_n2"])

@@ -20,7 +20,7 @@ def drop_random_non_pure_points(df, num_to_drop):
 
 
 # creating DataFrame
-phase_equilibrium_data = pd.read_csv("./gPROMS_data/optuna_sample.csv")
+phase_equilibrium_data = pd.read_csv("./gPROMS_data/output_6.csv")
 
 # visualising data
 attributes = ["z_water", "z_absorbent", "z_co2", "z_n2", "x_co2"]
