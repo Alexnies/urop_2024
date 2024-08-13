@@ -1,4 +1,10 @@
-# ínitiate gOPython to call gPROMS
+import os
+
+# must create these environment variabels to run gOPython
+os.environ['GPROMSHOME'] = '/usr/local/pse/gPROCESS_2023/gPROMS-core_2022.2.2.55277'
+os.environ['PSELMD_LICENSE_FILE'] = '27006@gproms.cc.ic.ac.uk'
+
+# must import gopython immediately after creating the temp env vars
 import gopython
 import numpy as np
 import csv
@@ -49,7 +55,7 @@ lower_bounds = [temp_lower, pressure_lower, composition_lower]
 groupsGC = np.array([1,     0,     0,    0,  0,  0, 0, 0,   0,          1,  0, 0, 1])
 
 # order: [T,P,amine,co2,n2]
-total_points = pow(2, 10)
+total_points = pow(2, 7)
 sobol_points = generate_sobol_points(lower_bounds,upper_bounds,total_points)
 print(upper_bounds)
 print(lower_bounds)
@@ -79,6 +85,7 @@ for lineInput in sobol_points:
     i = i + 1
     if i % x == 0:
         print(f'Iteration {i}: This is every {x}th iteration.')
+        print(result)
 gopython.stop()
 
 compositions = []
@@ -90,7 +97,7 @@ for composition_type in composition_types:
 
 header = ['temp', 'pressure'] + compositions + ['liquid_fraction', 'vapour_fraction']
 print(header)
-with open('small_sample.csv', 'w', newline='') as file:
+with open('test_sample.csv', 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(header)
     writer.writerows(results)

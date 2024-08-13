@@ -1,0 +1,3 @@
+This model is trained using first ~8000 data points to determine the best number of layers and lr in optuna
+Then further trained using ~65000 data points, with 20 epochs
+Input data is not in organised temperatures

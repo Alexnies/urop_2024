@@ -30,8 +30,8 @@ Execution of gOPythonSamanVariableGroupInput fails prematurely.
 Block information for reinitialisation will be used.
 Block information was also found for: initialisation, postcalculation
 
-Simulation took 10.4598 seconds.
-Total CPU time: 10.279
+Simulation took 38.1676 seconds.
+Total CPU time: 38.034
 
 Performing Foreign Object termination: "gSAFT::CCS_Mie_Databank_221020.xml<water,ABSORBENT(NH2_2nd;NH_2nd;N_2nd;CH3;CH2;CH;C;CH2OH;CH2OH_Short;NH2;NH;N;OH;OH_Short),carbon_dioxide,nitrogen>"
   Returning license for 0831_SF_ENGINE to server ...

@@ -20,7 +20,7 @@ def drop_random_non_pure_points(df, num_to_drop):
 
 
 # creating DataFrame
-phase_equilibrium_data = pd.read_csv("./gPROMS_data/output_6.csv")
+phase_equilibrium_data = pd.read_csv("./gPROMS_data/optuna_sample.csv")
 
 # visualising data
 attributes = ["z_water", "z_absorbent", "z_co2", "z_n2", "x_co2"]
@@ -101,8 +101,8 @@ pure_liquid_points = phase_equilibrium_data[phase_equilibrium_data['isPureLiquid
 pure_vapour_points = phase_equilibrium_data[phase_equilibrium_data['isPureVapour'] == 1]
 
 # sorting the DataFrames
-phase_equilibrium_data = phase_equilibrium_data.sort_values(by=['inv_temp'], ascending=[True])
-phase_equilibrium_data_regression = phase_equilibrium_data_regression.sort_values(by=['inv_temp'], ascending=[True])
+# phase_equilibrium_data = phase_equilibrium_data.sort_values(by=['inv_temp'], ascending=[True])
+# phase_equilibrium_data_regression = phase_equilibrium_data_regression.sort_values(by=['inv_temp'], ascending=[True])
 
 # creating training and testing datasets
 X = phase_equilibrium_data[features]

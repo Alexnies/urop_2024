@@ -27,6 +27,41 @@ except CUDANotAvailableError as e:
     raise SystemExit(e)
 
 
+def main():
+    study = optuna.create_study(direction="minimize",
+                                pruner=optuna.pruners.MedianPruner(
+                                    n_startup_trials=5, n_warmup_steps=30, interval_steps=10
+                                ),
+                                )
+    study.optimize(objective,
+                   n_trials=20,
+                   callbacks=[save_best_trial])
+
+    print("Study statistics: ")
+    print(f"   Number of finished trials: {len(study.trials)}")
+
+    print(f"Best trial:")
+    trial = study.best_trial
+
+    print(f"   Value: {trial.value}")
+
+    print("   Params: ")
+    for key, value in trial.params.items():
+        print(f"   {key}: {value}")
+
+    completed_trials = study.trials_dataframe()
+    save_path = os.path.join(DIR, "experiments", TIMESTAMP, 'completed_trials.csv')
+    completed_trials.to_csv(save_path)
+
+    fig = optuna.visualization.plot_param_importances(study)
+    fig.show()
+
+    plot_prediction_comparison(best_trial_num=study.best_trial.number,
+                               trials_df=completed_trials,
+                               labels=['x_absorbent', 'x_co2', 'x_n2', 'y_water', 'y_absorbent', 'y_co2'],
+                               show=True)
+
+
 def save_best_trial(study, trial):
     global model
     global MODEL_SAVE_PATH  # for plotting purposes
@@ -115,14 +150,16 @@ def define_model(trial):
     """
         Currently the model is optimising the i) hidden size and ii) activation function
     """
-    n_layers = trial.suggest_int("layers", 1, 5)
-    # n_layers = 3  # can be changed later
+    # n_layers = trial.suggest_int("layers", 1, 5)
+    n_layers = 3  # can be changed later
     layers = []
+
+    hidden_size = trial.suggest_int("n_units", 10, 1000)
 
     in_features = 6
     for i in range(n_layers):
         # hidden_size = trial.suggest_int("n_units_l{}".format(i), 2 ** 7, 2 ** 10)
-        hidden_size = 500
+        hidden_size = hidden_size
         layers.append(nn.Linear(in_features, hidden_size))
         # activation = trial.suggest_categorical(f'activation_l{i}', ['elu', 'sigmoid', 'tanh'])
         activation = 'elu'
@@ -231,13 +268,16 @@ def objective(trial):
             # adjust metrics and print out
             test_loss /= len(test_loader)
 
-        trial.report(test_loss, epoch)
+        # Report intermediate objective value
+        trial.report(val_loss, epoch)
 
-        # Handle pruning based on intermediate value?
+        # Handle pruning based on the patience criteria
+        if trial.should_prune():
+            raise optuna.TrialPruned()
 
     print(f"Train loss: {train_loss:.5f} | Validation loss: {val_loss:.5f} | Test loss: {test_loss:.5f}")
 
-    return test_loss
+    return val_loss
 
 
 def rename_state_dict_keys(state_dict):
@@ -317,29 +357,4 @@ def plot_prediction_comparison(best_trial_num: int,
         plt.close()
 
 
-study = optuna.create_study(direction="minimize")
-study.optimize(objective, n_trials=100, callbacks=[save_best_trial])
-
-print("Study statistics: ")
-print(f"   Number of finished trials: {len(study.trials)}")
-
-print(f"Best trial:")
-trial = study.best_trial
-
-print(f"   Value: {trial.value}")
-
-print("   Params: ")
-for key, value in trial.params.items():
-    print(f"   {key}: {value}")
-
-completed_trials = study.trials_dataframe()
-save_path = os.path.join(DIR, "experiments", TIMESTAMP, 'completed_trials.csv')
-completed_trials.to_csv(save_path)
-
-fig = optuna.visualization.plot_param_importances(study)
-fig.show()
-
-plot_prediction_comparison(best_trial_num=study.best_trial.number,
-                           trials_df=completed_trials,
-                           labels=['x_absorbent', 'x_co2', 'x_n2', 'y_water', 'y_absorbent', 'y_co2'],
-                           show=True)
+main()

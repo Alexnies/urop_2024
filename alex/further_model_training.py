@@ -6,8 +6,8 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
-from datetime import datetime
 import matplotlib.pyplot as plt
+import joblib
 
 # import custom functions
 from custom import CUDANotAvailableError, setup_cuda_as_device
@@ -15,15 +15,107 @@ from model import RegressionModel
 
 # define GLOBAL variables
 BATCH_SIZE = 32
-DIR = os.getcwd()
-EPOCHS = 100
-TIMESTAMP = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-MODEL_SAVE_PATH = '/home/an1821/Desktop/urop_2024/alex/experiments/2024_07_25_15_00_23/models/best_model_trial_68.pth'
+EPOCHS = 200
+TIMESTAMP = '2024_08_12_22_48_59'
+MODEL_SAVE_PATH = os.path.join(os.getcwd(), 'experiments', TIMESTAMP, 'models', 'best_model_trial_15.pth')
+FURTHER_MODEL_DIR_PATH = os.path.join(os.getcwd(), 'experiments', TIMESTAMP, 'further_trained_model')
+os.makedirs(FURTHER_MODEL_DIR_PATH, exist_ok=True)
 try:
     DEVICE = setup_cuda_as_device()  # setup device agnostic code
     print(f"Using device: {DEVICE}")
 except CUDANotAvailableError as e:
     raise SystemExit(e)
+
+
+def main():
+    # get the data loaders
+    train_loader, valid_loader, test_loader = get_data_loader()
+    model = define_model()
+    optimiser = torch.optim.Adam(params=model.parameters(), lr=0.00019509558970267883)  # manual for now
+    criterion = RMSELoss()
+
+    # create lists
+    epoch_arr = []
+    train_loss_arr = []
+    valid_loss_arr = []
+    test_loss_arr = []
+
+    for epoch in tqdm(range(EPOCHS)):
+        epoch_arr.append(epoch)
+
+        train_loss = 0
+
+        # put model into training mode
+        model.to(DEVICE)
+        model.train()
+
+        # add a loop to loop through the training batches
+        for batch, (X, y) in enumerate(train_loader):
+            # put data on target device
+            X, y = X.to(DEVICE), y.to(DEVICE)
+
+            # 1. forward pass
+            y_pred = model(X)
+            # 2. calculate loss (per batch)
+            loss = criterion(y_pred, y)
+            train_loss += loss.item()  # accumulate train loss
+            # 3. optimiser zero grad
+            optimiser.zero_grad()
+            # 4. loss backward
+            loss.backward()
+            # 5. optimser step (update the model's parameters once per batch)
+            optimiser.step()
+
+        # divide total train loss by length of train dataloader
+        train_loss /= len(train_loader)
+        train_loss_arr.append(train_loss)
+
+        val_loss = 0
+
+        model.eval()
+        with torch.inference_mode():
+            for X, y in valid_loader:
+                # send the data to the target device
+                X, y = X.to(DEVICE), y.to(DEVICE)
+                # 1. forward pass
+                val_pred = model(X)
+                # 2. calculate the loss
+                loss = criterion(val_pred, y)
+                val_loss += loss.item()
+
+            # adjust metrics and print out
+            val_loss /= len(valid_loader)
+        valid_loss_arr.append(val_loss)
+
+        test_loss = 0
+
+        # put the model in eval mode
+        model.eval()
+        with torch.inference_mode():
+            for X, y in test_loader:
+                # send the data to the target device
+                X, y = X.to(DEVICE), y.to(DEVICE)
+                # 1. forward pass
+                test_pred = model(X)
+                # 2. calculate the loss
+                loss = criterion(test_pred, y)
+                test_loss += loss.item()
+
+            # adjust metrics and print out
+            test_loss /= len(test_loader)
+        test_loss_arr.append(test_loss)
+
+    # save model parameters
+    model_save_path = os.path.join(FURTHER_MODEL_DIR_PATH, 'model.pth')
+    torch.save(model.state_dict(), model_save_path)
+
+    plot_loss_curve(epoch_arr,
+                    train_loss_arr,
+                    valid_loss_arr,
+                    test_loss_arr)
+
+    plot_prediction_comparison(model,
+                               labels=['x_absorbent', 'x_co2', 'x_n2', 'y_water', 'y_absorbent', 'y_co2'])
 
 
 def get_data_loader():
@@ -40,7 +132,7 @@ def get_data_loader():
 
     X_train, X_val, y_train, y_val = train_test_split(X_train_original, y_train_original,
                                                       test_size=0.2,
-                                                      random_state=42)
+                                                      random_state=22)
 
     # standardise the data
     X_data_scalar = StandardScaler()
@@ -52,6 +144,12 @@ def get_data_loader():
     y_train_scaled = y_data_scalar.fit_transform(y_train)
     y_val_scaled = y_data_scalar.transform(y_val)
     y_test_scaled = y_data_scalar.transform(y_test)
+
+    # save the StandardScalers
+    xscalar_save_path = os.path.join(FURTHER_MODEL_DIR_PATH, 'X_data_scalar.save')
+    yscalar_save_path = os.path.join(FURTHER_MODEL_DIR_PATH, 'y_data_scalar.save')
+    joblib.dump(X_data_scalar, xscalar_save_path)
+    joblib.dump(y_data_scalar, yscalar_save_path)
 
     # Convert data to PyTorch tensors and move to the chosen device
     X_train_tensor = torch.tensor(X_train_scaled, dtype=torch.float32).to(DEVICE)
@@ -176,12 +274,12 @@ def train_step(model: torch.nn.Module,
 
         # Print out what's happening
         # if batch % 200 == 0:
-            # print(f"Looked at {batch * len(X)}/{len(data_loader.dataset)} samples.")
+        # print(f"Looked at {batch * len(X)}/{len(data_loader.dataset)} samples.")
 
     # divide total train loss by length of train dataloader
     train_loss /= len(data_loader)
     # print(f"Train loss: {train_loss:.5f}")
-    return train_loss
+    return train_loss, model
 
 
 def val_step(model: torch.nn.Module,
@@ -265,9 +363,35 @@ def eval_model(model: torch.nn.Module,
             "model_loss": loss.item()}
 
 
+def plot_loss_curve(epoch_arr,
+                    train_loss_arr,
+                    valid_loss_arr,
+                    test_loss_arr,
+                    show: bool = False):
+    plt.figure()
+    plt.plot(epoch_arr, train_loss_arr, c='r', label='train loss')
+    plt.plot(epoch_arr, valid_loss_arr, c='b', label='validation loss')
+    plt.plot(epoch_arr, test_loss_arr, c='g', label='test loss')
+
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend()
+
+    figures_dir = os.path.join(FURTHER_MODEL_DIR_PATH, 'figures')
+    # figures_dir = os.path.join(os.getcwd(), '0812', 'figures')
+    os.makedirs(figures_dir, exist_ok=True)
+    fig_name = "loss.png"
+    save_path = os.path.join(figures_dir, fig_name)
+    plt.savefig(save_path, bbox_inches='tight')
+
+    if show:
+        plt.show()
+        plt.close()
+
+
 def plot_prediction_comparison(model,
                                labels: list,
-                               show: bool = True):
+                               show: bool = False):
     model.to("cpu")
     model.eval()
 
@@ -296,61 +420,18 @@ def plot_prediction_comparison(model,
         plt.ylabel('Predicted')
         plt.title(f'Comparison for {labels[i]}')
 
-        # save figure
-        # figures_dir = os.path.join(os.getcwd(), "experiments", TIMESTAMP, 'figures')
-        # os.makedirs(figures_dir, exist_ok=True)
-        # fig_name = f"{labels[i]}.png"
-        # save_path = os.path.join(figures_dir, fig_name)
-        # plt.savefig(save_path, bbox_inches='tight')
+        figures_dir = os.path.join(FURTHER_MODEL_DIR_PATH, 'figures')
+        # figures_dir = os.path.join(os.getcwd(), '0812', 'figures')
+        os.makedirs(figures_dir, exist_ok=True)
+        fig_name = f"{labels[i]}.png"
+        save_path = os.path.join(figures_dir, fig_name)
+        plt.savefig(save_path, bbox_inches='tight')
 
         # show figure
         if show:
             plt.show()
-
         # close figure
         plt.close()
 
 
-# get the data loaders
-train_loader, valid_loader, test_loader = get_data_loader()
-model = define_model()
-optimiser = torch.optim.Adam(params=model.parameters(), lr=0.00018813727196373314)  # manual for now
-criterion = RMSELoss()
-# create lists
-epoch_arr = []
-train_loss_arr = []
-valid_loss_arr = []
-test_loss_arr = []
-# create loop
-for epoch in tqdm(range(EPOCHS)):
-    epoch_arr.append(epoch)
-    train_loss = train_step(model,
-                            train_loader,
-                            criterion,
-                            optimiser,
-                            DEVICE)
-    train_loss_arr.append(train_loss.item())
-    valid_loss = val_step(model,
-                          valid_loader,
-                          criterion,
-                          DEVICE)
-    valid_loss_arr.append(valid_loss.item())
-    test_loss = test_step(model,
-                          test_loader,
-                          criterion,
-                          DEVICE)
-    test_loss_arr.append(test_loss.item())
-
-plt.figure()
-plt.plot(epoch_arr, train_loss_arr, c='r', label='train loss')
-plt.plot(epoch_arr, valid_loss_arr, c='b', label='validation loss')
-plt.plot(epoch_arr, test_loss_arr, c='g', label='test loss')
-
-plt.xlabel('Epoch')
-plt.ylabel('Loss')
-plt.legend()
-plt.show()
-plt.close()
-
-plot_prediction_comparison(model,
-                           labels=['x_absorbent', 'x_co2', 'x_n2', 'y_water', 'y_absorbent', 'y_co2'])
+main()
